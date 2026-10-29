@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Peculiar Atelier — Unusual by intent</title>
+<meta name="description" content="Peculiar Atelier. Unusual by intent. Tug the cloth, I dare you.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://d2ol7oe51mr4n9.cloudfront.net" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #e3e4e9;
+  --paper-edge: #cfd1d9;
+  --ink: #000000;
+  --ink-soft: rgba(0,0,0,0.5);
+  --violet: #5b07fb;
+  --violet-deep: #4a00d6;
+  --white: #ffffff;
+  --gutter: clamp(20px, 3.2vw, 46px);
+  --display: clamp(44px, min(7.65vw, 13.6vh), 168px);
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body { overflow-x: hidden; }
+body {
+  margin: 0;
+  background: var(--paper);
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.hero {
+  position: relative;
+  height: 100vh;
+  height: 100svh;
+  min-height: 480px;
+  overflow: hidden;
+  isolation: isolate;
+  background: radial-gradient(120% 95% at 58% 38%, #e8e9ed 0%, var(--paper) 46%, var(--paper-edge) 100%);
+}
+
+.hero__cloth {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 0;
+  touch-action: pan-y;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+.hero__cloth.is-over { cursor: grab; }
+.hero__cloth.is-held { cursor: grabbing; }
+.hero__cloth:focus-visible { outline: 2px solid var(--violet); outline-offset: -6px; }
+
+.hero__still {
+  position: absolute;
+  left: 40%;
+  top: 48.5%;
+  width: min(64vw, 84vh);
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  transform: translate(-50%, -50%) rotate(5deg);
+  box-shadow: -18px 40px 70px rgba(20, 20, 40, 0.22);
+  display: none;
+}
+.hero.no-cloth .hero__still { display: block; }
+.hero.no-cloth .hero__cloth { display: none; }
+
+.nav {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px var(--gutter) 0;
+  pointer-events: none;
+  animation: rise 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.nav > * { pointer-events: auto; }
+.nav__logo {
+  font-size: 19px;
+  font-weight: 400;
+  letter-spacing: -0.045em;
+  line-height: 36px;
+  color: var(--ink);
+  text-decoration: none;
+}
+.nav__actions { display: flex; gap: 12px; }
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  height: 36px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  color: var(--white);
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.2s;
+}
+.pill:hover { transform: translateY(-1px); }
+.pill:active { transform: scale(0.98); }
+.pill--menu { background: var(--ink); padding-left: 16px; }
+.pill--menu:hover { background: #1b1b1f; }
+.pill--start { background: var(--violet); }
+.pill--start:hover { background: var(--violet-deep); }
+
+.burger { display: grid; gap: 4px; width: 24px; }
+.burger i {
+  display: block;
+  height: 1.5px;
+  border-radius: 1px;
+  background: var(--white);
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.pill--menu:hover .burger i:first-child { transform: translateX(-2px); }
+.pill--menu:hover .burger i:last-child { transform: translateX(2px); }
+
+.nav__logo:focus-visible,
+.pill:focus-visible { outline: 2px solid var(--violet); outline-offset: 3px; }
+.pill--start:focus-visible { outline-color: var(--ink); }
+
+.hero__title {
+  position: absolute;
+  z-index: 1;
+  left: 66.9%;
+  top: 48.4%;
+  transform: translateY(-50%);
+  margin: 0;
+  font-size: var(--display);
+  font-weight: 500;
+  line-height: 0.99;
+  letter-spacing: -0.06em;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.hero__title span {
+  display: block;
+  animation: rise 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.hero__title .soft { color: var(--ink-soft); animation-delay: 0.08s; }
+
+@keyframes rise {
+  from { opacity: 0; transform: translate(0, 18px); }
+  to   { opacity: 1; transform: translate(0, 0); }
+}
+
+@media (max-width: 1099px), (max-aspect-ratio: 5/4) {
+  :root { --display: clamp(44px, min(12.4vw, 11vh), 120px); }
+  .hero__title {
+    left: var(--gutter);
+    top: auto;
+    bottom: clamp(20px, 4vh, 44px);
+    transform: none;
+  }
+  .hero__still { left: 50%; top: 44%; width: min(78vw, 60vh); }
+}
+@media (max-width: 520px) {
+  .pill--start { display: none; }
+  .nav__logo { font-size: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav, .hero__title span { animation: none; }
+  .pill, .burger i { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<section class="hero" id="hero" aria-label="Peculiar Atelier">
+  <canvas class="hero__cloth" id="cloth" role="img" tabindex="-1" aria-label="A violet holographic cloth showing a chrome octopus beneath the words Strange by design. Grab it then tug it around."></canvas>
+  <img class="hero__still" id="still" alt="" decoding="async" src="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/9212999e-7a4a-4f70-bc34-e4e1c4533b81.jpg">
+  <header class="nav">
+    <a class="nav__logo" href="#hero">Peculiar Atelier</a>
+    <div class="nav__actions">
+      <button class="pill pill--menu" type="button" aria-haspopup="true" aria-expanded="false"><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span>More</button>
+      <a class="pill pill--start" href="#start">Start a brief</a>
+    </div>
+  </header>
+  <h1 class="hero__title"><span>Grab me</span><span class="soft">I dare you</span></h1>
+</section>
+
+<script>
+(function () {
+  "use strict";
+
+  var IMG_URL = "https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/9212999e-7a4a-4f70-bc34-e4e1c4533b81.jpg";
+  var hero = document.getElementById("hero");
+  var canvas = document.getElementById("cloth");
+  var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function fail() { hero.classList.add("no-cloth"); }
+
+  try { init(); } catch (err) { fail(); }
+
+  function init() {
+    var gl = canvas.getContext("webgl", {
+      alpha: true, antialias: true, premultipliedAlpha: true, powerPreference: "high-performance"
+    });
+    if (!gl) { fail(); return; }
+
+    /* ---------- settings ---------- */
+    var S = {
+      size: 0.90, aspect: 1.12, spread: 0.98, pinRoll: 5.5, flutter: 0.35,
+      damping: 0.30, stiffness: 0.60, crumple: 0.55, grabRadius: 0.12, carryRadius: 0.20,
+      gravity: 2.6, tilt: -10, turn: -12, perspective: 0.45, maxSpeed: 12, steps: 8
+    };
+    var COLS = 46, ROWS = 42, N = COLS * ROWS;
+    var CH = S.size, CW = S.size * S.aspect;
+    var DEG = Math.PI / 180;
+
+    /* ---------- camera ---------- */
+    var t = S.tilt * DEG, r = S.turn * DEG;
+    var R0 = [Math.cos(r), 0, Math.sin(r)];
+    var R1 = [Math.sin(t) * Math.sin(r), Math.cos(t), -Math.sin(t) * Math.cos(r)];
+    var R2 = [-Math.cos(t) * Math.sin(r), Math.sin(t), Math.cos(t) * Math.cos(r)];
+    var CAM = Math.exp(Math.log(18) * (1 - S.perspective) + Math.log(1.7) * S.perspective);
+
+    /* ---------- view ---------- */
+    var view = { cx: 0.402, cy: 0.485, zoom: 1, aspect: 1, w: 1, h: 1, pw: 1, ph: 1 };
+
+    /* ---------- cloth state ---------- */
+    var P = new Float32Array(N * 3);
+    var Pp = new Float32Array(N * 3);
+    var rest = new Float32Array(N * 3);
+    var flatX = new Float32Array(N), flatY = new Float32Array(N);
+    var U = new Float32Array(N), V = new Float32Array(N);
+    var pinned = new Uint8Array(N);
+    var fixed = new Uint8Array(N);
+    var tetherL = new Float32Array(N), tetherR = new Float32Array(N);
+    var normals = new Float32Array(N * 3);
+
+    function ridge(x) { return Math.sqrt(Math.sin(x) * Math.sin(x) + 0.03) - 0.64; }
+    function crease(u, v) {
+      return S.crumple * 0.045 * CH * (
+        ridge(2.7 * u + 2.9 * v + 0.7) +
+        0.8 * ridge(-2.6 * u + 3.3 * v + 2.1) +
+        0.5 * Math.sin(4.9 * u - 1.4 * v + 2.2) +
+        0.55 * ridge(1.1 * u + 6.4 * v + 1.3) +
+        0.4 * ridge(8.3 * u + 3.9 * v + 0.2) +
+        0.3 * ridge(-5.7 * u + 9.1 * v + 1.6)
+      );
+    }
+
+    var half = 0.5 * CW * S.spread, topY = 0.5 * CH, roll = S.pinRoll * DEG;
+    var pinLx = -half * Math.cos(roll), pinLy = topY + half * Math.sin(roll);
+    var pinRx = half * Math.cos(roll), pinRy = topY - half * Math.sin(roll);
+    var iPinL = (ROWS - 1) * COLS, iPinR = (ROWS - 1) * COLS + COLS - 1;
+    pinned[iPinL] = 1; pinned[iPinR] = 1;
+
+    var i, row, col;
+    for (row = 0; row < ROWS; row++) {
+      for (col = 0; col < COLS; col++) {
+        i = row * COLS + col;
+        var u = col / (COLS - 1), v = row / (ROWS - 1);
+        U[i] = u; V[i] = v;
+        flatX[i] = (u - 0.5) * CW;
+        flatY[i] = (v - 0.5) * CH;
+        rest[3 * i] = flatX[i];
+        rest[3 * i + 1] = flatY[i];
+        rest[3 * i + 2] = crease(u, v);
+        // tethers: 1.02 x flat distance to each pin's flat spot
+        tetherL[i] = 1.02 * Math.hypot(flatX[i] - (-0.5 * CW), flatY[i] - topY);
+        tetherR[i] = 1.02 * Math.hypot(flatX[i] - (0.5 * CW), flatY[i] - topY);
+      }
+    }
+
+    // starting pose
+    (function () {
+      var c = Math.cos(-roll), s = Math.sin(-roll);
+      for (var k = 0; k < N; k++) {
+        var vv = V[k];
+        var x = flatX[k] * (S.spread + (1 - S.spread) * (1 - vv) * (1 - vv));
+        var y = flatY[k] - topY;
+        P[3 * k] = x * c - y * s;
+        P[3 * k + 1] = x * s + y * c + topY;
+        P[3 * k + 2] = rest[3 * k + 2];
+      }
+      P[3 * iPinL] = pinLx; P[3 * iPinL + 1] = pinLy; P[3 * iPinL + 2] = 0;
+      P[3 * iPinR] = pinRx; P[3 * iPinR + 1] = pinRy; P[3 * iPinR + 2] = 0;
+      Pp.set(P);
+    })();
+
+    /* ---------- links ---------- */
+    var bend = 0.02 + (0.60 - 0.02) * S.stiffness;
+    var la = [], lb = [], lr = [], lk = [];
+    function addLink(a, b, k) {
+      var dx = rest[3 * a] - rest[3 * b], dy = rest[3 * a + 1] - rest[3 * b + 1], dz = rest[3 * a + 2] - rest[3 * b + 2];
+      la.push(a); lb.push(b); lr.push(Math.sqrt(dx * dx + dy * dy + dz * dz)); lk.push(k);
+    }
+    for (row = 0; row < ROWS; row++) {
+      for (col = 0; col < COLS; col++) {
+        i = row * COLS + col;
+        if (col + 1 < COLS) addLink(i, i + 1, 1);
+        if (row + 1 < ROWS) addLink(i, i + COLS, 1);
+        if (col + 1 < COLS && row + 1 < ROWS) { addLink(i, i + COLS + 1, 0.5); addLink(i + 1, i + COLS, 0.5); }
+        if (col + 2 < COLS) addLink(i, i + 2, bend);
+        if (row + 2 < ROWS) addLink(i, i + 2 * COLS, bend);
+        if (col + 5 < COLS) addLink(i, i + 5, bend * 0.5);
+        if (row + 5 < ROWS) addLink(i, i + 5 * COLS, bend * 0.5);
+      }
+    }
+    var LN = la.length;
+    var LA = Uint16Array.from(la), LB = Uint16Array.from(lb);
+    var LR = Float32Array.from(lr), LK = Float32Array.from(lk);
+
+    /* ---------- grabbing state ---------- */
+    var held = { on: false, idx: -1, depth: 0, offX: 0, offY: 0, px: 0, py: 0, pointerId: null };
+    var carry = new Float32Array(N);
+    var holdList = [];
+
+    /* ---------- simulation ---------- */
+    var T = 0, dampSetting = S.damping;
+
+    function clampTether(k) {
+      var j = 3 * k, dx, dy, dz, d, m;
+      dx = P[j] - pinLx; dy = P[j + 1] - pinLy; dz = P[j + 2];
+      d = Math.sqrt(dx * dx + dy * dy + dz * dz); m = tetherL[k];
+      if (d > m) { var f = m / d; P[j] = pinLx + dx * f; P[j + 1] = pinLy + dy * f; P[j + 2] = dz * f; }
+      dx = P[j] - pinRx; dy = P[j + 1] - pinRy; dz = P[j + 2];
+      d = Math.sqrt(dx * dx + dy * dy + dz * dz); m = tetherR[k];
+      if (d > m) { var g = m / d; P[j] = pinRx + dx * g; P[j + 1] = pinRy + dy * g; P[j + 2] = dz * g; }
+    }
+
+    function holdTarget() {
+      // pointer unprojected at remembered depth, plus offset, back to world
+      var s = CAM / Math.max(CAM - held.depth, 0.001);
+      var qx = held.px / s + held.offX, qy = held.py / s + held.offY, qz = held.depth;
+      var wx = qx * R0[0] + qy * R1[0] + qz * R2[0];
+      var wy = qx * R0[1] + qy * R1[1] + qz * R2[1];
+      var wz = qx * R0[2] + qy * R1[2] + qz * R2[2];
+      // clamp by the grabbed point's two tethers
+      for (var pass = 0; pass < 2; pass++) {
+        var dx = wx - pinLx, dy = wy - pinLy, dz = wz, d = Math.sqrt(dx * dx + dy * dy + dz * dz), m = tetherL[held.idx];
+        if (d > m) { var f = m / d; wx = pinLx + dx * f; wy = pinLy + dy * f; wz = dz * f; }
+        dx = wx - pinRx; dy = wy - pinRy; dz = wz; d = Math.sqrt(dx * dx + dy * dy + dz * dz); m = tetherR[held.idx];
+        if (d > m) { var g = m / d; wx = pinRx + dx * g; wy = pinRy + dy * g; wz = dz * g; }
+      }
+      return [wx, wy, wz];
+    }
+
+    function substep(h) {
+      var k, j;
+      T += h;
+      var damp = Math.exp(-(0.15 + 5.85 * dampSetting) * h);
+      var gust = 0.6 + 0.4 * Math.sin(0.37 * T) * Math.sin(0.23 * T + 1.0);
+      var wind = reduceMotion ? 0 : S.flutter * 2.4 * gust * (S.gravity / 2.6);
+
+      // hold: move carried points
+      holdList.length = 0;
+      if (held.on) {
+        var tg = holdTarget();
+        var g = 3 * held.idx;
+        var ddx = tg[0] - P[g], ddy = tg[1] - P[g + 1], ddz = tg[2] - P[g + 2];
+        for (k = 0; k < N; k++) {
+          var w = carry[k];
+          if (w <= 0 || pinned[k]) continue;
+          j = 3 * k;
+          if (w >= 0.98) {
+            Pp[j] = P[j]; Pp[j + 1] = P[j + 1]; Pp[j + 2] = P[j + 2];
+            P[j] += ddx; P[j + 1] += ddy; P[j + 2] += ddz;
+            fixed[k] = 1; holdList.push(k);
+          } else {
+            var mx = w * ddx, my = w * ddy, mz = w * ddz;
+            P[j] += mx; P[j + 1] += my; P[j + 2] += mz;
+            Pp[j] += mx; Pp[j + 1] += my; Pp[j + 2] += mz;
+          }
+        }
+      }
+
+      // verlet
+      var hh = h * h, maxD = S.maxSpeed * h;
+      for (k = 0; k < N; k++) {
+        if (pinned[k] || fixed[k]) continue;
+        j = 3 * k;
+        var u = U[k], v = V[k];
+        var s1 = Math.sin(9.1 * u - 3.7 * v + 3.1 * T);
+        var s2 = Math.sin(6.3 * u + 7.9 * v - 2.3 * T + 1.3);
+        var s3 = Math.sin(2.9 * u + 1.7 * T + 0.8 * Math.sin(0.5 * T)) * Math.cos(2.3 * v - 0.9 * T);
+        var ax = wind * 0.25 * Math.sin(3.3 * v + 1.1 * T + u);
+        var ay = wind * 0.1 * s2 - S.gravity;
+        var az = wind * (0.45 * s1 + 0.35 * s2 + 0.3 * s3);
+        var vx = (P[j] - Pp[j]) * damp + ax * hh;
+        var vy = (P[j + 1] - Pp[j + 1]) * damp + ay * hh;
+        var vz = (P[j + 2] - Pp[j + 2]) * damp + az * hh;
+        var sp = Math.sqrt(vx * vx + vy * vy + vz * vz);
+        if (sp > maxD) { var sc = maxD / sp; vx *= sc; vy *= sc; vz *= sc; }
+        Pp[j] = P[j]; Pp[j + 1] = P[j + 1]; Pp[j + 2] = P[j + 2];
+        P[j] += vx; P[j + 1] += vy; P[j + 2] += vz;
+      }
+
+      // links (alternate sweep direction)
+      var fwd = (Math.round(T / h) & 1) === 0, n, li;
+      for (n = 0; n < LN; n++) {
+        li = fwd ? n : LN - 1 - n;
+        var a = LA[li], b = LB[li];
+        var wa = (pinned[a] || fixed[a]) ? 0 : 1, wb = (pinned[b] || fixed[b]) ? 0 : 1;
+        var ws = wa + wb;
+        if (ws === 0) continue;
+        var ia = 3 * a, ib = 3 * b;
+        var dx = P[ib] - P[ia], dy = P[ib + 1] - P[ia + 1], dz = P[ib + 2] - P[ia + 2];
+        var d = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        if (d < 1e-9) continue;
+        var f = (d - LR[li]) / d * LK[li] / ws;
+        if (wa) { P[ia] += dx * f; P[ia + 1] += dy * f; P[ia + 2] += dz * f; }
+        if (wb) { P[ib] -= dx * f; P[ib + 1] -= dy * f; P[ib + 2] -= dz * f; }
+      }
+
+      // tethers
+      for (k = 0; k < N; k++) { if (!pinned[k]) clampTether(k); }
+
+      for (k = 0; k < holdList.length; k++) fixed[holdList[k]] = 0;
+    }
+
+    function step(dt) {
+      var h = dt / S.steps;
+      for (var s = 0; s < S.steps; s++) substep(h);
+    }
+
+    // settle before first frame
+    (function () {
+      var saved = dampSetting;
+      dampSetting = 1;
+      for (var s = 0; s < 360; s++) substep(1 / 240);
+      dampSetting = saved;
+      Pp.set(P);
+    })();
+
+    /* ---------- WebGL ---------- */
+    function compile(type, src) {
+      var sh = gl.createShader(type);
+      gl.shaderSource(sh, src); gl.compileShader(sh);
+      if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) throw new Error("shader");
+      return sh;
+    }
+    function program(vs, fs) {
+      var p = gl.createProgram();
+      gl.attachShader(p, compile(gl.VERTEX_SHADER, vs));
+      gl.attachShader(p, compile(gl.FRAGMENT_SHADER, fs));
+      gl.linkProgram(p);
+      if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error("link");
+      return p;
+    }
+
+    var VS = [
+      "attribute vec3 aPos; attribute vec3 aNrm; attribute vec2 aUV;",
+      "uniform vec3 uR0; uniform vec3 uR1; uniform vec3 uR2;",
+      "uniform float uCam; uniform float uZoom; uniform float uCx; uniform float uCy; uniform float uAsp;",
+      "varying vec3 vN; varying vec3 vP; varying vec2 vUV;",
+      "void main(){",
+      "  vec3 q = vec3(dot(uR0,aPos), dot(uR1,aPos), dot(uR2,aPos));",
+      "  vN = vec3(dot(uR0,aNrm), dot(uR1,aNrm), dot(uR2,aNrm));",
+      "  vP = q; vUV = aUV;",
+      "  float s = uCam / max(uCam - q.z, 0.001);",
+      "  vec2 sc = q.xy * s * uZoom;",
+      "  gl_Position = vec4(2.0*(uCx + sc.x/uAsp) - 1.0, 1.0 - 2.0*(uCy - sc.y), -q.z*0.5, 1.0);",
+      "}"
+    ].join("\n");
+
+    var FS_SOLID = "precision mediump float; void main(){ gl_FragColor = vec4(1.0); }";
+
+    var FS_CLOTH = [
+      "precision highp float;",
+      "varying vec3 vN; varying vec3 vP; varying vec2 vUV;",
+      "uniform sampler2D uTex; uniform float uHas; uniform float uCam;",
+      "float box(vec3 dir, vec3 c, vec2 hs, float soft){",
+      "  vec3 up = abs(c.y) < 0.95 ? vec3(0.0,1.0,0.0) : vec3(1.0,0.0,0.0);",
+      "  vec3 tt = normalize(cross(up, c)); vec3 bb = cross(c, tt);",
+      "  float d = dot(dir, c);",
+      "  if (d <= 0.0) return 0.0;",
+      "  vec2 p = vec2(dot(dir, tt), dot(dir, bb)) / d;",
+      "  vec2 e = (hs - abs(p)) / soft;",
+      "  return smoothstep(-0.5, 0.5, e.x) * smoothstep(-0.5, 0.5, e.y);",
+      "}",
+      "vec3 rainbow(vec3 p){",
+      "  return clamp(vec3(0.74,0.58,0.96) + vec3(0.26,0.24,0.10) * cos(6.28318530718 * (p + vec3(0.0,0.28,0.62))), 0.0, 1.0);",
+      "}",
+      "void main(){",
+      "  vec3 n = normalize(vN);",
+      "  bool back = n.z < 0.0;",
+      "  if (back) n = -n;",
+      "  vec3 V = normalize(vec3(0.0,0.0,uCam) - vP);",
+      "  vec3 Rf = reflect(-V, n);",
+      "  vec3 KEY = normalize(vec3(-0.42, 0.45, 0.79));",
+      "  float nv = clamp(dot(n, V), 0.0, 1.0);",
+      "  float nl = max(dot(n, KEY), 0.0);",
+      "  vec3 texc = pow(texture2D(uTex, vUV).rgb, vec3(2.2));",
+      "  vec3 print = mix(vec3(0.10,0.02,0.32), texc, uHas);",
+      "  float shade = 0.46 + 0.68*nl + 0.08*n.y;",
+      "  float key = pow(max(dot(Rf, KEY), 0.0), 26.0);",
+      "  float strip = box(Rf, normalize(vec3(0.08,0.93,0.36)), vec2(1.1,0.07), 0.22);",
+      "  float side  = box(Rf, normalize(vec3(0.86,0.12,0.50)), vec2(0.06,0.85), 0.20);",
+      "  float fill  = box(Rf, KEY, vec2(0.42,0.30), 0.35);",
+      "  float phase = 3.0*(0.85*dot(n.xy, vec2(0.6,0.8)) + 0.75*(1.0-nv) + 0.3*dot(Rf.xy, vec2(-0.8,0.6))) + 0.4*sin(5.0*vUV.x + 7.0*vUV.y);",
+      "  vec3 holo = mix(vec3(1.0), pow(rainbow(vec3(phase)), vec3(2.2)), 0.8);",
+      "  float lum = dot(print, vec3(0.2126,0.7152,0.0722));",
+      "  float gloss = mix(1.0, 0.45, smoothstep(0.55, 0.9, lum));",
+      "  vec3 spec = holo * gloss * mix(vec3(1.0), print*2.4 + 0.08, 0.65) * (0.34*key + 0.11*strip + 0.07*side + 0.02*fill);",
+      "  vec3 col = print*shade + spec + holo*print*0.6*pow(1.0-nv, 3.0);",
+      "  if (back) {",
+      "    vec3 foil = vec3(0.30,0.22,0.52)*(0.35 + 0.9*nl) + spec*1.3;",
+      "    col = mix(foil, print*shade, 0.38);",
+      "  }",
+      "  col = min(col, vec3(0.8)) + 0.2*(1.0 - exp(-max(col - 0.8, 0.0)/0.2));",
+      "  gl_FragColor = vec4(pow(col, vec3(1.0/2.2)), 1.0);",
+      "}"
+    ].join("\n");
+
+    var VS_FULL = [
+      "attribute vec2 aP; varying vec2 vUv;",
+      "void main(){ vUv = aP*0.5 + 0.5; gl_Position = vec4(aP, 0.0, 1.0); }"
+    ].join("\n");
+
+    var FS_BLUR = [
+      "precision mediump float;",
+      "varying vec2 vUv; uniform sampler2D uTex; uniform vec2 uStep; uniform vec2 uShift;",
+      "void main(){",
+      "  float acc = 0.0; float ws = 0.0;",
+      "  for (int j = -3; j <= 3; j++) {",
+      "    for (int i = -3; i <= 3; i++) {",
+      "      float fi = float(i); float fj = float(j);",
+      "      float w = exp(-(fi*fi + fj*fj) / 6.0);",
+      "      acc += w * texture2D(uTex, vUv + uShift + vec2(fi, fj) * uStep).a;",
+      "      ws += w;",
+      "    }",
+      "  }",
+      "  float a = acc / ws * 0.30;",
+      "  gl_FragColor = vec4(vec3(0.07,0.07,0.16) * a, a);",
+      "}"
+    ].join("\n");
+
+    var progCloth = program(VS, FS_CLOTH);
+    var progSolid = program(VS, FS_SOLID);
+    var progBlur = program(VS_FULL, FS_BLUR);
+
+    function locs(p, names, attr) {
+      var o = {};
+      names.forEach(function (n) { o[n] = attr ? gl.getAttribLocation(p, n) : gl.getUniformLocation(p, n); });
+      return o;
+    }
+    var uVS = ["uR0", "uR1", "uR2", "uCam", "uZoom", "uCx", "uCy", "uAsp"];
+    var uCloth = locs(progCloth, uVS.concat(["uTex", "uHas"]));
+    var uSolid = locs(progSolid, uVS);
+    var uBlur = locs(progBlur, ["uTex", "uStep", "uShift"]);
+    var aCloth = locs(progCloth, ["aPos", "aNrm", "aUV"], true);
+    var aSolid = locs(progSolid, ["aPos", "aNrm", "aUV"], true);
+    var aBlur = locs(progBlur, ["aP"], true);
+
+    // geometry buffers
+    var posBuf = gl.createBuffer(), nrmBuf = gl.createBuffer(), uvBuf = gl.createBuffer(), idxBuf = gl.createBuffer();
+    var uvData = new Float32Array(N * 2);
+    for (row = 0; row < ROWS; row++) {
+      for (col = 0; col < COLS; col++) {
+        i = row * COLS + col;
+        uvData[2 * i] = col / (COLS - 1);
+        uvData[2 * i + 1] = 1 - row / (ROWS - 1);
+      }
+    }
+    gl.bindBuffer(gl.ARRAY_BUFFER, uvBuf); gl.bufferData(gl.ARRAY_BUFFER, uvData, gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, posBuf); gl.bufferData(gl.ARRAY_BUFFER, P.byteLength, gl.DYNAMIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, nrmBuf); gl.bufferData(gl.ARRAY_BUFFER, normals.byteLength, gl.DYNAMIC_DRAW);
+    var idx = [];
+    for (row = 0; row < ROWS - 1; row++) {
+      for (col = 0; col < COLS - 1; col++) {
+        var a0 = row * COLS + col, b0 = a0 + 1, c0 = a0 + COLS, d0 = c0 + 1;
+        idx.push(a0, b0, c0, b0, d0, c0);
+      }
+    }
+    var idxData = new Uint16Array(idx);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, idxBuf); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, idxData, gl.STATIC_DRAW);
+
+    var triBuf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, triBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+
+    // textures
+    var tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([40, 10, 120, 255]));
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    var hasImage = 0;
+
+    var shadowTex = gl.createTexture(), shadowFbo = gl.createFramebuffer();
+    var shadowW = 1, shadowH = 1;
+
+    function resizeShadow() {
+      shadowW = Math.max(1, Math.floor(view.pw / 8));
+      shadowH = Math.max(1, Math.floor(view.ph / 8));
+      gl.bindTexture(gl.TEXTURE_2D, shadowTex);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, shadowW, shadowH, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, shadowFbo);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, shadowTex, 0);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    }
+
+    function updateView() {
+      var w = hero.clientWidth, h = hero.clientHeight;
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      view.w = w; view.h = h; view.aspect = w / h;
+      view.pw = Math.max(1, Math.round(w * dpr)); view.ph = Math.max(1, Math.round(h * dpr));
+      if (canvas.width !== view.pw || canvas.height !== view.ph) { canvas.width = view.pw; canvas.height = view.ph; }
+      var wide = w >= 1100 && w / h >= 1.25;
+      if (wide) {
+        view.cx = 0.402; view.cy = 0.485;
+        view.zoom = Math.min(1, 0.58 * view.aspect / (CW * 1.12));
+      } else {
+        view.cx = 0.5;
+        view.cy = view.aspect < 0.75 ? 0.41 : 0.43;
+        view.zoom = Math.min(1, 0.92 * view.aspect / (CW * 1.12), (view.aspect < 0.75 ? 0.60 : 0.66) / CH);
+      }
+      resizeShadow();
+    }
+
+    function setViewUniforms(u) {
+      gl.uniform3fv(u.uR0, R0); gl.uniform3fv(u.uR1, R1); gl.uniform3fv(u.uR2, R2);
+      gl.uniform1f(u.uCam, CAM); gl.uniform1f(u.uZoom, view.zoom);
+      gl.uniform1f(u.uCx, view.cx); gl.uniform1f(u.uCy, view.cy); gl.uniform1f(u.uAsp, view.aspect);
+    }
+
+    function bindCloth(a) {
+      gl.bindBuffer(gl.ARRAY_BUFFER, posBuf);
+      gl.enableVertexAttribArray(a.aPos); gl.vertexAttribPointer(a.aPos, 3, gl.FLOAT, false, 0, 0);
+      if (a.aNrm >= 0) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, nrmBuf);
+        gl.enableVertexAttribArray(a.aNrm); gl.vertexAttribPointer(a.aNrm, 3, gl.FLOAT, false, 0, 0);
+      }
+      if (a.aUV >= 0) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, uvBuf);
+        gl.enableVertexAttribArray(a.aUV); gl.vertexAttribPointer(a.aUV, 2, gl.FLOAT, false, 0, 0);
+      }
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, idxBuf);
+    }
+    function unbindCloth(a) {
+      gl.disableVertexAttribArray(a.aPos);
+      if (a.aNrm >= 0) gl.disableVertexAttribArray(a.aNrm);
+      if (a.aUV >= 0) gl.disableVertexAttribArray(a.aUV);
+    }
+
+    function computeNormals() {
+      for (var rr = 0; rr < ROWS; rr++) {
+        for (var cc = 0; cc < COLS; cc++) {
+          var c1 = Math.max(cc - 1, 0), c2 = Math.min(cc + 1, COLS - 1);
+          var r1 = Math.max(rr - 1, 0), r2 = Math.min(rr + 1, ROWS - 1);
+          var ia = 3 * (rr * COLS + c1), ib = 3 * (rr * COLS + c2);
+          var ic = 3 * (r1 * COLS + cc), id = 3 * (r2 * COLS + cc);
+          var hx = P[ib] - P[ia], hy = P[ib + 1] - P[ia + 1], hz = P[ib + 2] - P[ia + 2];
+          var vx = P[id] - P[ic], vy = P[id + 1] - P[ic + 1], vz = P[id + 2] - P[ic + 2];
+          var nx = hy * vz - hz * vy, ny = hz * vx - hx * vz, nz = hx * vy - hy * vx;
+          var l = Math.sqrt(nx * nx + ny * ny + nz * nz) || 1;
+          var o = 3 * (rr * COLS + cc);
+          normals[o] = nx / l; normals[o + 1] = ny / l; normals[o + 2] = nz / l;
+        }
+      }
+    }
+
+    function render() {
+      computeNormals();
+      gl.bindBuffer(gl.ARRAY_BUFFER, posBuf); gl.bufferSubData(gl.ARRAY_BUFFER, 0, P);
+      gl.bindBuffer(gl.ARRAY_BUFFER, nrmBuf); gl.bufferSubData(gl.ARRAY_BUFFER, 0, normals);
+
+      // 1. shadow mask
+      gl.bindFramebuffer(gl.FRAMEBUFFER, shadowFbo);
+      gl.viewport(0, 0, shadowW, shadowH);
+      gl.disable(gl.DEPTH_TEST); gl.disable(gl.BLEND); gl.disable(gl.CULL_FACE);
+      gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.useProgram(progSolid);
+      setViewUniforms(uSolid);
+      bindCloth(aSolid);
+      gl.drawElements(gl.TRIANGLES, idxData.length, gl.UNSIGNED_SHORT, 0);
+      unbindCloth(aSolid);
+
+      // 2. back to canvas, blurred shadow
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      gl.viewport(0, 0, view.pw, view.ph);
+      gl.clearColor(0, 0, 0, 0);
+      gl.clearDepth(1);
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      gl.useProgram(progBlur);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, shadowTex);
+      gl.uniform1i(uBlur.uTex, 0);
+      var sp = 0.9 + 1.5 * view.zoom * view.h / 724;
+      gl.uniform2f(uBlur.uStep, sp / shadowW, sp / shadowH);
+      gl.uniform2f(uBlur.uShift, 0.012 * view.zoom / view.aspect, 0.045 * view.zoom);
+      gl.enable(gl.BLEND);
+      gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+      gl.bindBuffer(gl.ARRAY_BUFFER, triBuf);
+      gl.enableVertexAttribArray(aBlur.aP);
+      gl.vertexAttribPointer(aBlur.aP, 2, gl.FLOAT, false, 0, 0);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      gl.disableVertexAttribArray(aBlur.aP);
+
+      // 3. cloth
+      gl.disable(gl.BLEND);
+      gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL);
+      gl.disable(gl.CULL_FACE);
+      gl.useProgram(progCloth);
+      setViewUniforms(uCloth);
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.uniform1i(uCloth.uTex, 0);
+      gl.uniform1f(uCloth.uHas, hasImage);
+      bindCloth(aCloth);
+      gl.drawElements(gl.TRIANGLES, idxData.length, gl.UNSIGNED_SHORT, 0);
+      unbindCloth(aCloth);
+    }
+
+    /* ---------- image ---------- */
+    var img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = function () {
+      try {
+        gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+        gl.generateMipmap(gl.TEXTURE_2D);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        var ext = gl.getExtension("EXT_texture_filter_anisotropic") ||
+                  gl.getExtension("WEBKIT_EXT_texture_filter_anisotropic");
+        if (ext) {
+          var max = gl.getParameter(ext.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
+          gl.texParameterf(gl.TEXTURE_2D, ext.TEXTURE_MAX_ANISOTROPY_EXT, Math.min(8, max));
+        }
+        hasImage = 1;
+        render();
+      } catch (e) { fail(); }
+    };
+    img.onerror = fail;
+    img.src = IMG_URL;
+
+    /* ---------- pointer interaction ---------- */
+    function pointerScreen(clientX, clientY) {
+      var rect = canvas.getBoundingClientRect();
+      return {
+        x: ((clientX - rect.left) / rect.width - view.cx) * view.aspect / view.zoom,
+        y: (view.cy - (clientY - rect.top) / rect.height) / view.zoom
+      };
+    }
+
+    function pick(clientX, clientY) {
+      var p = pointerScreen(clientX, clientY);
+      var rad = S.grabRadius / view.zoom, best = -1, bestScore = Infinity;
+      for (var k = 0; k < N; k++) {
+        var j = 3 * k;
+        var qx = R0[0] * P[j] + R0[1] * P[j + 1] + R0[2] * P[j + 2];
+        var qy = R1[0] * P[j] + R1[1] * P[j + 1] + R1[2] * P[j + 2];
+        var qz = R2[0] * P[j] + R2[1] * P[j + 1] + R2[2] * P[j + 2];
+        var s = CAM / Math.max(CAM - qz, 0.001);
+        var d = Math.hypot(qx * s - p.x, qy * s - p.y);
+        if (d > rad) continue;
+        var score = d - 0.08 * qz;
+        if (score < bestScore) { bestScore = score; best = k; }
+      }
+      return { idx: best, p: p };
+    }
+
+    function startHold(clientX, clientY, pointerId) {
+      var hit = pick(clientX, clientY);
+      if (hit.idx < 0 || pinned[hit.idx]) return false;
+      var j = 3 * hit.idx;
+      var qx = R0[0] * P[j] + R0[1] * P[j + 1] + R0[2] * P[j + 2];
+      var qy = R1[0] * P[j] + R1[1] * P[j + 1] + R1[2] * P[j + 2];
+      var qz = R2[0] * P[j] + R2[1] * P[j + 1] + R2[2] * P[j + 2];
+      var s = CAM / Math.max(CAM - qz, 0.001);
+      held.on = true; held.idx = hit.idx; held.depth = qz;
+      held.offX = qx - hit.p.x / s; held.offY = qy - hit.p.y / s;
+      held.px = hit.p.x; held.py = hit.p.y; held.pointerId = pointerId;
+      var rad = S.carryRadius * CH;
+      for (var k = 0; k < N; k++) {
+        if (pinned[k]) { carry[k] = 0; continue; }
+        if (k === hit.idx) { carry[k] = 1; continue; }
+        var d = Math.hypot(flatX[k] - flatX[hit.idx], flatY[k] - flatY[hit.idx]) / rad;
+        carry[k] = d < 1 ? (1 - d * d) * (1 - d * d) : 0;
+      }
+      canvas.classList.add("is-held");
+      return true;
+    }
+
+    function endHold() {
+      if (!held.on) return;
+      held.on = false; held.idx = -1; held.pointerId = null;
+      canvas.classList.remove("is-held");
+    }
+
+    canvas.addEventListener("pointerdown", function (e) {
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      if (startHold(e.clientX, e.clientY, e.pointerId)) {
+        try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
+        e.preventDefault();
+      }
+    });
+    canvas.addEventListener("pointermove", function (e) {
+      if (held.on && e.pointerId === held.pointerId) {
+        var p = pointerScreen(e.clientX, e.clientY);
+        held.px = p.x; held.py = p.y;
+      } else if (!held.on && e.pointerType === "mouse") {
+        canvas.classList.toggle("is-over", pick(e.clientX, e.clientY).idx >= 0);
+      }
+    });
+    canvas.addEventListener("pointerleave", function () { if (!held.on) canvas.classList.remove("is-over"); });
+    ["pointerup", "pointercancel", "lostpointercapture"].forEach(function (n) {
+      canvas.addEventListener(n, function (e) { if (e.pointerId === held.pointerId) endHold(); });
+    });
+
+    // touch: only block page scroll when the finger is on the cloth
+    canvas.addEventListener("touchstart", function (e) {
+      var tch = e.touches[0];
+      if (tch && pick(tch.clientX, tch.clientY).idx >= 0) e.preventDefault();
+    }, { passive: false });
+    canvas.addEventListener("touchmove", function (e) {
+      if (held.on) e.preventDefault();
+    }, { passive: false });
+
+    canvas.addEventListener("webglcontextlost", function (e) { e.preventDefault(); fail(); });
+
+    /* ---------- loop ---------- */
+    var running = false, visible = true, last = 0, raf = 0;
+    function frame(now) {
+      if (!running) return;
+      var dt = Math.min((now - last) / 1000, 1 / 30);
+      last = now;
+      if (dt > 0) step(dt);
+      render();
+      raf = requestAnimationFrame(frame);
+    }
+    function sync() {
+      var should = visible && !document.hidden;
+      if (should && !running) { running = true; last = performance.now(); raf = requestAnimationFrame(frame); }
+      else if (!should && running) { running = false; cancelAnimationFrame(raf); }
+    }
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (entries) { visible = entries[0].isIntersecting; sync(); }).observe(hero);
+    }
+    document.addEventListener("visibilitychange", sync);
+
+    updateView();
+    if ("ResizeObserver" in window) new ResizeObserver(updateView).observe(hero);
+    window.addEventListener("resize", updateView);
+    render();
+    sync();
+  }
+})();
+</script>
+</body>
+</html>
